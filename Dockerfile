@@ -28,7 +28,10 @@ RUN \
 	libx11-dev \
 	libxkbfile-dev \
 	libsecret-1-dev \
-	pkg-config && \
+	pkg-config \
+	software-properties-common && \
+ echo "**** add repo ****" && \
+ add-apt-repository ppa:deadsnakes/ppa && \
  echo "**** install runtime dependencies ****" && \
  apt-get install -y \
 	git \
@@ -37,7 +40,13 @@ RUN \
 	net-tools \
 	nodejs \
 	sudo \
-	yarn && \
+	yarn \
+	python3.9 \
+	python3.9-distutils \
+	python3.9-venv && \
+ echo "**** install pip ****" && \
+ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+ python3.9 get-pip.py && \
  echo "**** install code-server ****" && \
  if [ -z ${CODE_RELEASE+x} ]; then \
 	CODE_RELEASE=$(curl -sX GET https://registry.yarnpkg.com/code-server \
@@ -46,6 +55,8 @@ RUN \
  CODE_VERSION=$(echo "$CODE_RELEASE" | awk '{print substr($1,2); }') && \
  yarn config set network-timeout 600000 -g && \
  yarn --production --verbose --frozen-lockfile global add code-server@"$CODE_VERSION" && \
+ echo "install node dependencies" && \
+ yarn global add vercel netlify-cli && \
  yarn cache clean && \
  echo "**** clean up ****" && \
  apt-get purge --auto-remove -y \
